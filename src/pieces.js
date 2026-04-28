@@ -22,11 +22,13 @@ export function createBag() {
 }
 
 export function createPiece(shapeIndex = randomInt(SHAPES.length)) {
+  const colors = createPieceColors(SHAPES[shapeIndex].length);
+
   return {
-    blocks: SHAPES[shapeIndex].map(([x, y]) => ({
+    blocks: SHAPES[shapeIndex].map(([x, y], index) => ({
       x,
       y,
-      color: COLORS[randomInt(COLORS.length)],
+      color: colors[index],
     })),
     x: 3,
     y: -1,
@@ -63,6 +65,11 @@ export function getCells(piece) {
 
 function randomInt(max) {
   return Math.floor(Math.random() * max);
+}
+
+function createPieceColors(count) {
+  const pool = shuffle(COLORS.flatMap((color) => [color, color]));
+  return pool.slice(0, count);
 }
 
 function shuffle(items) {
