@@ -2,6 +2,7 @@ import { countRowBlocks, HEIGHT, WIDTH } from "./board.js";
 
 export const MIN_SUPPORT_WIDTH = 3;
 export const MASS_PER_SUPPORT = 6;
+export const FLOOR_BOOST_MULTIPLIER = 2;
 
 export function findCollapseCells(board, rules) {
   const cells = new Map();
@@ -23,7 +24,7 @@ export function findCollapseCells(board, rules) {
   }
 
   if (rules.massSupport) {
-    addCells(cells, findOverloadedSupport(board, rules.massPerSupport).cells);
+    addCells(cells, findOverloadedSupport(board, rules.massPerSupport, rules.fullRowMode).cells);
   }
 
   return { cells: [...cells.values()] };
@@ -131,7 +132,7 @@ function findBadCenterMass(board) {
   return { cells: [] };
 }
 
-function findOverloadedSupport(board, massPerSupport = MASS_PER_SUPPORT) {
+function findOverloadedSupport(board, massPerSupport = MASS_PER_SUPPORT, fullRowMode = "none") {
   const capacity = Math.max(1, Number(massPerSupport) || MASS_PER_SUPPORT);
 
   for (let supportY = HEIGHT - 1; supportY > 0; supportY -= 1) {
@@ -140,8 +141,16 @@ function findOverloadedSupport(board, massPerSupport = MASS_PER_SUPPORT) {
       continue;
     }
 
+    if (fullRowMode === "floor" && support === WIDTH) {
+      return { cells: [] };
+    }
+
     const upperCells = getCellsAbove(board, supportY);
-    if (upperCells.length > support * capacity) {
+    const multiplier = fullRowMode === "boost" && hasFullRowSupport(board, supportY)
+      ? FLOOR_BOOST_MULTIPLIER
+      : 1;
+
+    if (upperCells.length > support * capacity * multiplier) {
       return { cells: upperCells };
     }
   }
@@ -180,6 +189,10 @@ function getFilledXs(board, y) {
     }
   }
   return xs;
+}
+
+function hasFullRowSupport(board, y) {
+  return countRowBlocks(board, y) === WIDTH || (y + 1 < HEIGHT && countRowBlocks(board, y + 1) === WIDTH);
 }
 
 function addCells(target, cells) {

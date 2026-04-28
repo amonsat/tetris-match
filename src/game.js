@@ -27,6 +27,7 @@ const settingsModal = document.querySelector("#settings-modal");
 const settingsCloseButton = document.querySelector("#settings-close");
 const ruleInputs = document.querySelectorAll("[data-rule]");
 const massPerSupportInput = document.querySelector("#mass-per-support");
+const fullRowModeInput = document.querySelector("#full-row-mode");
 const tapMoveEnabledInput = document.querySelector("#tap-move-enabled");
 const swipeMoveEnabledInput = document.querySelector("#swipe-move-enabled");
 const swipeDropEnabledInput = document.querySelector("#swipe-drop-enabled");
@@ -532,6 +533,7 @@ function getCollapseSettings() {
     rules[input.dataset.rule] = input.checked;
   }
   rules.massPerSupport = Number(massPerSupportInput.value) || 6;
+  rules.fullRowMode = fullRowModeInput.value;
   return rules;
 }
 
