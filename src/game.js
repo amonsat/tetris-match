@@ -23,7 +23,8 @@ const restartButton = document.querySelector("#restart");
 const restartOverlayButton = document.querySelector("#restart-overlay");
 const pauseButton = document.querySelector("#pause");
 const settingsButton = document.querySelector("#settings");
-const settingsPanel = document.querySelector("#settings-panel");
+const settingsModal = document.querySelector("#settings-modal");
+const settingsCloseButton = document.querySelector("#settings-close");
 const ruleInputs = document.querySelectorAll("[data-rule]");
 const massPerSupportInput = document.querySelector("#mass-per-support");
 
@@ -95,6 +96,12 @@ restartOverlayButton.addEventListener("click", reset);
 pauseButton.addEventListener("click", togglePause);
 helpButton.addEventListener("click", toggleGestureHelp);
 settingsButton.addEventListener("click", toggleSettings);
+settingsCloseButton.addEventListener("click", hideSettings);
+settingsModal.addEventListener("click", (event) => {
+  if (event.target === settingsModal) {
+    hideSettings();
+  }
+});
 bindGestureControls();
 preventBrowserGestures();
 
@@ -465,9 +472,14 @@ function updateUi() {
 }
 
 function toggleSettings() {
-  const shouldShow = settingsPanel.hidden;
-  settingsPanel.hidden = !shouldShow;
+  const shouldShow = settingsModal.hidden;
+  settingsModal.hidden = !shouldShow;
   settingsButton.setAttribute("aria-expanded", String(shouldShow));
+}
+
+function hideSettings() {
+  settingsModal.hidden = true;
+  settingsButton.setAttribute("aria-expanded", "false");
 }
 
 function getCollapseSettings() {
