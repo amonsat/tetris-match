@@ -30,3 +30,7 @@ export function getTowerHeight(board) {
 export function reachesTop(board) {
   return board[0].some(Boolean);
 }
+
+export function countRowBlocks(board, y) {
+  return board[y].filter(Boolean).length;
+}

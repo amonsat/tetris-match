@@ -1,5 +1,6 @@
 import { HEIGHT, WIDTH } from "./board.js";
 import { getCells, PALETTE } from "./pieces.js";
+import { getStableRows, getWeakRows } from "./stability.js";
 
 const GRID = "#252b34";
 const EMPTY = "#10141b";
@@ -11,6 +12,7 @@ export function renderGame(ctx, board, activePiece) {
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
   drawGrid(ctx, size, WIDTH, HEIGHT);
+  drawRowHints(ctx, board, size);
 
   for (let y = 0; y < HEIGHT; y += 1) {
     for (let x = 0; x < WIDTH; x += 1) {
@@ -67,6 +69,21 @@ function drawGrid(ctx, size, width, height) {
     ctx.moveTo(0, py);
     ctx.lineTo(width * size, py);
     ctx.stroke();
+  }
+}
+
+function drawRowHints(ctx, board, size) {
+  const stableRows = getStableRows(board);
+  const weakRows = getWeakRows(board);
+
+  for (const y of stableRows) {
+    ctx.fillStyle = "rgba(113, 214, 201, 0.09)";
+    ctx.fillRect(0, y * size, WIDTH * size, size);
+  }
+
+  for (const y of weakRows) {
+    ctx.fillStyle = "rgba(255, 112, 112, 0.15)";
+    ctx.fillRect(0, y * size, WIDTH * size, size);
   }
 }
 

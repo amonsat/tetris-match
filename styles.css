@@ -164,8 +164,12 @@ h2 {
 
 .stats strong {
   display: block;
-  font-size: 24px;
+  font-size: 22px;
   line-height: 1;
+}
+
+.stats .wide {
+  grid-column: span 3;
 }
 
 #next {
