@@ -19,6 +19,7 @@ const overlayText = document.querySelector("#overlay-text");
 const restartButton = document.querySelector("#restart");
 const restartOverlayButton = document.querySelector("#restart-overlay");
 const pauseButton = document.querySelector("#pause");
+const touchButtons = document.querySelectorAll("[data-action]");
 
 const DROP_INTERVAL = 650;
 const SOFT_DROP_INTERVAL = 45;
@@ -82,6 +83,10 @@ document.addEventListener("keyup", (event) => {
 restartButton.addEventListener("click", reset);
 restartOverlayButton.addEventListener("click", reset);
 pauseButton.addEventListener("click", togglePause);
+
+for (const button of touchButtons) {
+  bindTouchButton(button);
+}
 
 function loop(time = 0) {
   const delta = time - lastTime;
@@ -167,6 +172,53 @@ function hardDrop() {
     }
     activePiece = moved;
   }
+}
+
+function bindTouchButton(button) {
+  let repeatId = null;
+  const action = button.dataset.action;
+
+  const runAction = () => {
+    if (state !== "playing") {
+      return;
+    }
+
+    if (action === "left") {
+      move(-1);
+    } else if (action === "right") {
+      move(1);
+    } else if (action === "rotate-left") {
+      rotate(-1);
+    } else if (action === "rotate-right") {
+      rotate(1);
+    } else if (action === "drop") {
+      hardDrop();
+    } else if (action === "soft-drop") {
+      drop();
+    }
+  };
+
+  const stopRepeat = () => {
+    if (repeatId !== null) {
+      window.clearInterval(repeatId);
+      repeatId = null;
+    }
+  };
+
+  button.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    button.setPointerCapture(event.pointerId);
+    runAction();
+
+    if (action === "left" || action === "right" || action === "soft-drop") {
+      stopRepeat();
+      repeatId = window.setInterval(runAction, action === "soft-drop" ? 55 : 120);
+    }
+  });
+
+  button.addEventListener("pointerup", stopRepeat);
+  button.addEventListener("pointercancel", stopRepeat);
+  button.addEventListener("lostpointercapture", stopRepeat);
 }
 
 async function settlePiece() {

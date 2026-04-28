@@ -9,12 +9,23 @@
   <body>
     <main class="app">
       <section class="game-shell" aria-label="Tetris Match">
-        <div class="playfield-wrap">
-          <canvas id="game" width="320" height="640" aria-label="Игровое поле"></canvas>
-          <div id="overlay" class="overlay" hidden>
-            <h1 id="overlay-title">Пауза</h1>
-            <p id="overlay-text">Нажми P, чтобы продолжить</p>
-            <button id="restart-overlay" type="button">Новая игра</button>
+        <div class="play-area">
+          <div class="playfield-wrap">
+            <canvas id="game" width="320" height="640" aria-label="Игровое поле"></canvas>
+            <div id="overlay" class="overlay" hidden>
+              <h1 id="overlay-title">Пауза</h1>
+              <p id="overlay-text">Нажми P, чтобы продолжить</p>
+              <button id="restart-overlay" type="button">Новая игра</button>
+            </div>
+          </div>
+
+          <div class="touch-controls" aria-label="Сенсорное управление">
+            <button class="touch-button" type="button" data-action="left" aria-label="Влево">←</button>
+            <button class="touch-button" type="button" data-action="rotate-left" aria-label="Поворот против часовой">↶</button>
+            <button class="touch-button primary" type="button" data-action="drop" aria-label="Сбросить">↓</button>
+            <button class="touch-button" type="button" data-action="rotate-right" aria-label="Поворот по часовой">↷</button>
+            <button class="touch-button" type="button" data-action="right" aria-label="Вправо">→</button>
+            <button class="touch-button wide" type="button" data-action="soft-drop" aria-label="Ускорить падение">Быстрее</button>
           </div>
         </div>
 
