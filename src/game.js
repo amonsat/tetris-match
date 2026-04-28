@@ -27,6 +27,7 @@ const BURN_ANIMATION_MS = 260;
 const COLLAPSE_ANIMATION_MS = 360;
 const GESTURE_THRESHOLD = 34;
 const BOTTOM_ZONE_RATIO = 0.22;
+const TAP_DELAY_MS = 90;
 
 let board;
 let activePiece;
@@ -87,6 +88,7 @@ restartButton.addEventListener("click", reset);
 restartOverlayButton.addEventListener("click", reset);
 pauseButton.addEventListener("click", togglePause);
 bindGestureControls();
+preventBrowserGestures();
 
 function loop(time = 0) {
   const delta = time - lastTime;
@@ -198,6 +200,7 @@ function bindGestureControls() {
       side,
       handled: false,
       repeatId: null,
+      tapTimer: null,
     };
 
     if (isBottom) {
@@ -206,7 +209,13 @@ function bindGestureControls() {
       return;
     }
 
-    move(side === "left" ? -1 : 1);
+    gesture.tapTimer = window.setTimeout(() => {
+      if (!gesture || gesture.id !== event.pointerId || gesture.handled || state !== "playing") {
+        return;
+      }
+      gesture.handled = true;
+      move(side === "left" ? -1 : 1);
+    }, TAP_DELAY_MS);
   });
 
   playArea.addEventListener("pointermove", (event) => {
@@ -222,6 +231,7 @@ function bindGestureControls() {
 
     gesture.handled = true;
     stopGestureRepeat();
+    clearTapTimer();
     if (dy < 0) {
       rotate(gesture.side === "left" ? -1 : 1);
     } else {
@@ -234,13 +244,49 @@ function bindGestureControls() {
   playArea.addEventListener("lostpointercapture", endGesture);
 }
 
+function preventBrowserGestures() {
+  let lastTouchEnd = 0;
+
+  document.addEventListener("touchmove", (event) => {
+    if (event.target.closest(".play-area")) {
+      event.preventDefault();
+    }
+  }, { passive: false });
+
+  document.addEventListener("touchend", (event) => {
+    const now = Date.now();
+    if (event.target.closest(".play-area") && now - lastTouchEnd < 330) {
+      event.preventDefault();
+    }
+    lastTouchEnd = now;
+  }, { passive: false });
+
+  document.addEventListener("gesturestart", (event) => {
+    event.preventDefault();
+  });
+}
+
 function endGesture(event) {
   if (!gesture || gesture.id !== event.pointerId) {
     return;
   }
 
+  if (!gesture.handled && state === "playing") {
+    move(gesture.side === "left" ? -1 : 1);
+  }
+
+  clearTapTimer();
   stopGestureRepeat();
   gesture = null;
+}
+
+function clearTapTimer() {
+  if (!gesture || gesture.tapTimer === null) {
+    return;
+  }
+
+  window.clearTimeout(gesture.tapTimer);
+  gesture.tapTimer = null;
 }
 
 function stopGestureRepeat() {
