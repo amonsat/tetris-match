@@ -20,17 +20,31 @@ export function scoreStableRows(board) {
 }
 
 export function collapseWeakTops(board) {
+  const collapse = findWeakCollapse(board);
+  if (collapse.cells.length === 0) {
+    return { collapsed: 0, weakRow: null, weakWidth: 0, cells: [] };
+  }
+
+  clearCells(board, collapse.cells);
+  return {
+    collapsed: collapse.cells.length,
+    weakRow: collapse.weakRow,
+    weakWidth: collapse.weakWidth,
+    cells: collapse.cells,
+  };
+}
+
+export function findWeakCollapse(board) {
   for (let y = HEIGHT - 1; y >= 0; y -= 1) {
     const width = countRowBlocks(board, y);
     if (width === 0 || width >= MIN_SUPPORT_WIDTH || !hasBlocksAbove(board, y)) {
       continue;
     }
 
-    const collapsed = clearAbove(board, y);
-    return { collapsed, weakRow: y, weakWidth: width };
+    return { cells: getCellsAbove(board, y), weakRow: y, weakWidth: width };
   }
 
-  return { collapsed: 0, weakRow: null, weakWidth: 0 };
+  return { cells: [], weakRow: null, weakWidth: 0 };
 }
 
 export function getWeakRows(board) {
@@ -67,17 +81,22 @@ function hasBlocksAbove(board, row) {
   return false;
 }
 
-function clearAbove(board, row) {
-  let collapsed = 0;
+function getCellsAbove(board, row) {
+  const cells = [];
 
   for (let y = row - 1; y >= 0; y -= 1) {
     for (let x = 0; x < WIDTH; x += 1) {
       if (board[y][x]) {
-        board[y][x] = null;
-        collapsed += 1;
+        cells.push({ x, y, color: board[y][x] });
       }
     }
   }
 
-  return collapsed;
+  return cells;
+}
+
+function clearCells(board, cells) {
+  for (const { x, y } of cells) {
+    board[y][x] = null;
+  }
 }

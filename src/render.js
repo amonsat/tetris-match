@@ -5,8 +5,9 @@ import { getStableRows, getWeakRows } from "./stability.js";
 const GRID = "#252b34";
 const EMPTY = "#10141b";
 
-export function renderGame(ctx, board, activePiece) {
+export function renderGame(ctx, board, activePiece, effects = []) {
   const size = ctx.canvas.width / WIDTH;
+  const hiddenCells = getHiddenCells(effects);
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.fillStyle = EMPTY;
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -16,7 +17,7 @@ export function renderGame(ctx, board, activePiece) {
 
   for (let y = 0; y < HEIGHT; y += 1) {
     for (let x = 0; x < WIDTH; x += 1) {
-      if (board[y][x]) {
+      if (board[y][x] && !hiddenCells.has(getCellKey(x, y))) {
         drawBlock(ctx, x, y, size, board[y][x]);
       }
     }
@@ -29,6 +30,28 @@ export function renderGame(ctx, board, activePiece) {
       }
     }
   }
+
+  drawEffects(ctx, effects, size);
+}
+
+function getHiddenCells(effects) {
+  const hiddenCells = new Set();
+
+  for (const effect of effects) {
+    if (effect.type !== "burn") {
+      continue;
+    }
+
+    for (const cell of effect.cells) {
+      hiddenCells.add(getCellKey(cell.x, cell.y));
+    }
+  }
+
+  return hiddenCells;
+}
+
+function getCellKey(x, y) {
+  return `${x}:${y}`;
 }
 
 export function renderNext(ctx, piece) {
@@ -91,10 +114,47 @@ function drawBlock(ctx, x, y, size, color) {
   drawBlockAt(ctx, x * size, y * size, size, color);
 }
 
-function drawBlockAt(ctx, x, y, size, color) {
+function drawEffects(ctx, effects, size) {
+  for (const effect of effects) {
+    if (effect.type === "burn") {
+      for (const cell of effect.cells) {
+        drawBurnEffect(ctx, cell.x, cell.y, size, cell.color, effect.progress);
+      }
+    }
+
+    if (effect.type === "collapse") {
+      for (const cell of effect.cells) {
+        drawCollapseEffect(ctx, cell.x, cell.y, size, cell.color, effect.progress);
+      }
+    }
+  }
+}
+
+function drawBurnEffect(ctx, x, y, size, color, progress) {
+  const scale = 1 - progress * 0.62;
+  const pulse = Math.sin(progress * Math.PI);
+  const blockSize = size * scale;
+  const px = x * size + (size - blockSize) / 2;
+  const py = y * size + (size - blockSize) / 2;
+
+  drawBlockAt(ctx, px, py, blockSize, color, 1);
+
+  ctx.fillStyle = `rgba(255, 246, 189, ${0.45 * pulse})`;
+  ctx.fillRect(x * size, y * size, size, size);
+}
+
+function drawCollapseEffect(ctx, x, y, size, color, progress) {
+  const fall = progress * progress * size * 5;
+  const wobble = Math.sin(progress * Math.PI * 6 + x) * 4 * (1 - progress);
+  drawBlockAt(ctx, x * size + wobble, y * size + fall, size, color, 1 - progress);
+}
+
+function drawBlockAt(ctx, x, y, size, color, alpha = 1) {
   const inset = 2;
   const fill = PALETTE[color] ?? color;
 
+  ctx.save();
+  ctx.globalAlpha = alpha;
   ctx.fillStyle = fill;
   ctx.fillRect(x + inset, y + inset, size - inset * 2, size - inset * 2);
 
@@ -104,4 +164,5 @@ function drawBlockAt(ctx, x, y, size, color) {
   ctx.strokeStyle = "rgba(0, 0, 0, 0.28)";
   ctx.lineWidth = 2;
   ctx.strokeRect(x + inset + 1, y + inset + 1, size - inset * 2 - 2, size - inset * 2 - 2);
+  ctx.restore();
 }

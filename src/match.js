@@ -31,7 +31,7 @@ export function resolveMatches(board, minGroupSize = 3) {
   return { burned: totalBurned, combo };
 }
 
-function findGroups(board, minGroupSize) {
+export function findGroups(board, minGroupSize) {
   const visited = Array.from({ length: HEIGHT }, () => Array(WIDTH).fill(false));
   const groups = [];
 
@@ -78,7 +78,13 @@ function floodFill(board, visited, startX, startY, color) {
   return group;
 }
 
-function applyGravity(board) {
+export function removeCells(board, cells) {
+  for (const { x, y } of cells) {
+    board[y][x] = null;
+  }
+}
+
+export function applyGravity(board) {
   for (let x = 0; x < WIDTH; x += 1) {
     const column = [];
     for (let y = HEIGHT - 1; y >= 0; y -= 1) {

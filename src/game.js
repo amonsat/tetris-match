@@ -1,8 +1,8 @@
 import { canPlace, createBoard, getTowerHeight, lockPiece, reachesTop } from "./board.js";
-import { resolveMatches } from "./match.js";
+import { applyGravity, findGroups, removeCells } from "./match.js";
 import { createBag, createPiece, getCells, rotatePiece } from "./pieces.js";
 import { renderGame, renderNext } from "./render.js";
-import { collapseWeakTops, SCORE_TARGET, scoreStableRows } from "./stability.js";
+import { collapseWeakTops, findWeakCollapse, SCORE_TARGET, scoreStableRows } from "./stability.js";
 
 const canvas = document.querySelector("#game");
 const nextCanvas = document.querySelector("#next");
@@ -24,6 +24,8 @@ const pauseButton = document.querySelector("#pause");
 
 const DROP_INTERVAL = 650;
 const SOFT_DROP_INTERVAL = 45;
+const BURN_ANIMATION_MS = 260;
+const COLLAPSE_ANIMATION_MS = 360;
 
 let board;
 let activePiece;
@@ -37,7 +39,9 @@ let score = 0;
 let collapsedTotal = 0;
 let stableRows = 0;
 let lastCombo = 0;
+let effects = [];
 let state = "playing";
+let runId = 0;
 
 reset();
 requestAnimationFrame(loop);
@@ -113,6 +117,8 @@ function reset() {
   lastCombo = 0;
   state = "playing";
   softDrop = false;
+  effects = [];
+  runId += 1;
   updateUi();
   hideOverlay();
 }
@@ -145,6 +151,10 @@ function rotate(direction) {
 }
 
 function drop() {
+  if (state !== "playing") {
+    return;
+  }
+
   const moved = { ...activePiece, y: activePiece.y + 1 };
   if (canPlace(board, getCells(moved))) {
     activePiece = moved;
@@ -165,14 +175,35 @@ function hardDrop() {
   }
 }
 
-function settlePiece() {
+async function settlePiece() {
+  if (state !== "playing") {
+    return;
+  }
+
+  const currentRun = runId;
+  state = "resolving";
   lockPiece(board, getCells(activePiece));
+  activePiece = null;
 
-  const result = resolveMatches(board);
-  burnedTotal += result.burned;
+  const result = await resolveMatchesWithAnimation(currentRun);
+  if (currentRun !== runId) {
+    return;
+  }
   lastCombo = result.combo;
+  updateUi();
 
-  const collapse = collapseWeakTops(board);
+  const collapsePreview = findWeakCollapse(board);
+  if (collapsePreview.cells.length > 0) {
+    removeCells(board, collapsePreview.cells);
+    await playEffect({ type: "collapse", cells: collapsePreview.cells }, COLLAPSE_ANIMATION_MS, currentRun);
+    if (currentRun !== runId) {
+      return;
+    }
+  }
+
+  const collapse = collapsePreview.cells.length > 0
+    ? { collapsed: collapsePreview.cells.length }
+    : collapseWeakTops(board);
   collapsedTotal += collapse.collapsed;
 
   const scoring = scoreStableRows(board);
@@ -188,6 +219,7 @@ function settlePiece() {
 
   activePiece = nextPiece;
   nextPiece = takePiece();
+  state = "playing";
 
   if (!canPlace(board, getCells(activePiece))) {
     state = "lost";
@@ -208,8 +240,68 @@ function togglePause() {
 }
 
 function draw() {
-  renderGame(ctx, board, state === "playing" || state === "paused" ? activePiece : null);
+  const shouldShowPiece = state === "playing" || state === "paused";
+  renderGame(ctx, board, shouldShowPiece ? activePiece : null, effects);
   renderNext(nextCtx, nextPiece);
+}
+
+async function resolveMatchesWithAnimation(currentRun) {
+  let totalBurned = 0;
+  let combo = 0;
+
+  while (currentRun === runId) {
+    const groups = findGroups(board, 3);
+    if (groups.length === 0) {
+      break;
+    }
+
+    const cells = groups.flat().map((cell) => ({
+      ...cell,
+      color: board[cell.y][cell.x],
+    }));
+
+    combo += 1;
+    await playEffect({ type: "burn", cells }, BURN_ANIMATION_MS, currentRun);
+    if (currentRun !== runId) {
+      break;
+    }
+
+    removeCells(board, cells);
+    totalBurned += cells.length;
+    burnedTotal = burnedTotal + cells.length;
+    lastCombo = combo;
+    updateUi();
+    applyGravity(board);
+  }
+
+  return { burned: totalBurned, combo };
+}
+
+async function playEffect(baseEffect, duration, currentRun) {
+  const started = performance.now();
+
+  return new Promise((resolve) => {
+    function step(now) {
+      if (currentRun !== runId) {
+        effects = [];
+        resolve();
+        return;
+      }
+
+      const progress = Math.min(1, (now - started) / duration);
+      effects = [{ ...baseEffect, progress }];
+
+      if (progress >= 1) {
+        effects = [];
+        resolve();
+        return;
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    requestAnimationFrame(step);
+  });
 }
 
 function updateUi() {
