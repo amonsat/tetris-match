@@ -192,10 +192,6 @@ h2 {
   grid-template-columns: 1fr 1fr;
 }
 
-.touch-controls {
-  display: none;
-}
-
 .keys {
   color: var(--muted);
   display: grid;
@@ -308,37 +304,9 @@ h2 {
 
   .playfield-wrap {
     justify-self: center;
-    width: min(100%, calc((100svh - 288px) / 2));
+    width: min(100%, calc((100svh - 176px) / 2));
     min-width: 180px;
     max-width: 340px;
-  }
-
-  .touch-controls {
-    display: grid;
-    gap: 6px;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    touch-action: none;
-    user-select: none;
-  }
-
-  .touch-button {
-    align-items: center;
-    display: grid;
-    font-size: 22px;
-    justify-items: center;
-    min-height: 46px;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .touch-button.primary {
-    background: #445063;
-  }
-
-  .touch-button.wide {
-    font-size: 15px;
-    grid-column: 1 / -1;
-    min-height: 40px;
   }
 }
 
@@ -360,15 +328,7 @@ h2 {
   }
 
   .playfield-wrap {
-    width: min(100%, calc((100svh - 282px) / 2));
+    width: min(100%, calc((100svh - 170px) / 2));
     min-width: 170px;
-  }
-
-  .touch-button {
-    min-height: 42px;
-  }
-
-  .touch-button.wide {
-    min-height: 36px;
   }
 }
