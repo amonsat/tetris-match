@@ -27,6 +27,10 @@ const settingsModal = document.querySelector("#settings-modal");
 const settingsCloseButton = document.querySelector("#settings-close");
 const ruleInputs = document.querySelectorAll("[data-rule]");
 const massPerSupportInput = document.querySelector("#mass-per-support");
+const tapMoveEnabledInput = document.querySelector("#tap-move-enabled");
+const swipeMoveEnabledInput = document.querySelector("#swipe-move-enabled");
+const swipeDropEnabledInput = document.querySelector("#swipe-drop-enabled");
+const bottomDropEnabledInput = document.querySelector("#bottom-drop-enabled");
 
 const DROP_INTERVAL = 650;
 const SOFT_DROP_INTERVAL = 45;
@@ -224,14 +228,14 @@ function bindGestureControls() {
       tapTimer: null,
     };
 
-    if (isBottom) {
+    if (isBottom && bottomDropEnabledInput.checked) {
       drop();
       gesture.repeatId = window.setInterval(drop, SOFT_DROP_INTERVAL);
       return;
     }
 
     gesture.tapTimer = window.setTimeout(() => {
-      if (!gesture || gesture.id !== event.pointerId || gesture.handled || state !== "playing") {
+      if (!gesture || gesture.id !== event.pointerId || gesture.handled || state !== "playing" || !tapMoveEnabledInput.checked) {
         return;
       }
       gesture.handled = true;
@@ -247,7 +251,7 @@ function bindGestureControls() {
     const dx = event.clientX - gesture.startX;
     const dy = event.clientY - gesture.startY;
 
-    if (Math.abs(dx) >= GESTURE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.15) {
+    if (swipeMoveEnabledInput.checked && Math.abs(dx) >= GESTURE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.15) {
       gesture.handled = true;
       stopGestureRepeat();
       clearTapTimer();
@@ -264,7 +268,7 @@ function bindGestureControls() {
     clearTapTimer();
     if (dy < 0) {
       rotate(gesture.side === "left" ? -1 : 1);
-    } else {
+    } else if (swipeDropEnabledInput.checked) {
       hardDrop();
     }
   });
@@ -312,7 +316,7 @@ function endGesture(event) {
     return;
   }
 
-  if (!gesture.handled && state === "playing") {
+  if (!gesture.handled && state === "playing" && tapMoveEnabledInput.checked) {
     move(gesture.side === "left" ? -1 : 1);
   }
 
