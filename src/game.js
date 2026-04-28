@@ -2,7 +2,7 @@ import { canPlace, createBoard, getTowerHeight, lockPiece, reachesTop } from "./
 import { applyGravity, findGroups, removeCells } from "./match.js";
 import { createBag, createPiece, getCells, rotatePiece } from "./pieces.js";
 import { renderGame, renderNext } from "./render.js";
-import { collapseWeakTops, findWeakCollapse, SCORE_TARGET, scoreStableRows } from "./stability.js";
+import { findWeakCollapse } from "./stability.js";
 
 const canvas = document.querySelector("#game");
 const nextCanvas = document.querySelector("#next");
@@ -10,8 +10,6 @@ const ctx = canvas.getContext("2d");
 const nextCtx = nextCanvas.getContext("2d");
 
 const heightEl = document.querySelector("#height");
-const scoreEl = document.querySelector("#score");
-const stableEl = document.querySelector("#stable");
 const collapsedEl = document.querySelector("#collapsed");
 const burnedEl = document.querySelector("#burned");
 const comboEl = document.querySelector("#combo");
@@ -35,9 +33,7 @@ let lastTime = 0;
 let dropCounter = 0;
 let softDrop = false;
 let burnedTotal = 0;
-let score = 0;
 let collapsedTotal = 0;
-let stableRows = 0;
 let lastCombo = 0;
 let effects = [];
 let state = "playing";
@@ -111,9 +107,7 @@ function reset() {
   nextPiece = takePiece();
   dropCounter = 0;
   burnedTotal = 0;
-  score = 0;
   collapsedTotal = 0;
-  stableRows = 0;
   lastCombo = 0;
   state = "playing";
   softDrop = false;
@@ -201,18 +195,11 @@ async function settlePiece() {
     }
   }
 
-  const collapse = collapsePreview.cells.length > 0
-    ? { collapsed: collapsePreview.cells.length }
-    : collapseWeakTops(board);
-  collapsedTotal += collapse.collapsed;
+  collapsedTotal += collapsePreview.cells.length;
 
-  const scoring = scoreStableRows(board);
-  score += scoring.points;
-  stableRows = scoring.stableRows;
-
-  if (score >= SCORE_TARGET && reachesTop(board)) {
+  if (reachesTop(board)) {
     state = "won";
-    showOverlay("Башня выстояла", "Ты набрал достаточно стабильности и дотянулся до верхнего ряда.");
+    showOverlay("Башня готова", "Ты дотянулся до верхнего ряда после сгораний и обвалов.");
     updateUi();
     return;
   }
@@ -305,9 +292,7 @@ async function playEffect(baseEffect, duration, currentRun) {
 }
 
 function updateUi() {
-  scoreEl.textContent = `${score}/${SCORE_TARGET}`;
   heightEl.textContent = String(getTowerHeight(board));
-  stableEl.textContent = String(stableRows);
   collapsedEl.textContent = String(collapsedTotal);
   burnedEl.textContent = String(burnedTotal);
   comboEl.textContent = String(lastCombo);
