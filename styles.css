@@ -138,10 +138,10 @@ button:hover {
   align-content: center;
   border: 1px solid rgba(255, 255, 255, 0.16);
   display: grid;
-  gap: 4px;
+  gap: 8px;
   justify-items: center;
   min-width: 0;
-  padding: 10px 6px;
+  padding: 12px 8px;
   text-align: center;
 }
 
@@ -156,8 +156,9 @@ button:hover {
 }
 
 .gesture-zone strong {
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .gesture-zone span,
@@ -165,7 +166,7 @@ button:hover {
 .gesture-drop,
 .gesture-bottom {
   color: var(--text);
-  font-size: 12px;
+  font-size: 13px;
   font-style: normal;
   font-weight: 800;
   line-height: 1.15;
@@ -185,7 +186,8 @@ button:hover {
   display: grid;
   grid-column: 1 / -1;
   justify-items: center;
-  min-height: 48px;
+  min-height: 50px;
+  padding: 6px 8px;
 }
 
 .gesture-drop {
@@ -198,7 +200,7 @@ button:hover {
 
 @media (max-width: 360px) {
   .gesture-zone strong {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .gesture-zone span,
