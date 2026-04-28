@@ -4,7 +4,7 @@ import { getCells, PALETTE } from "./pieces.js";
 const GRID = "#252b34";
 const EMPTY = "#10141b";
 
-export function renderGame(ctx, board, activePiece, effects = [], hazardCells = []) {
+export function renderGame(ctx, board, activePiece, effects = [], hazardCells = [], matchCells = []) {
   const size = ctx.canvas.width / WIDTH;
   const hiddenCells = getHiddenCells(effects);
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -12,7 +12,8 @@ export function renderGame(ctx, board, activePiece, effects = [], hazardCells = 
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
   drawGrid(ctx, size, WIDTH, HEIGHT);
-  drawCellHints(ctx, hazardCells, size);
+  drawMatchHints(ctx, matchCells, size);
+  drawCollapseHints(ctx, hazardCells, size);
 
   for (let y = 0; y < HEIGHT; y += 1) {
     for (let x = 0; x < WIDTH; x += 1) {
@@ -94,7 +95,20 @@ function drawGrid(ctx, size, width, height) {
   }
 }
 
-function drawCellHints(ctx, cells, size) {
+function drawMatchHints(ctx, cells, size) {
+  for (const { x, y } of cells) {
+    if (y < 0) {
+      continue;
+    }
+    ctx.fillStyle = "rgba(255, 246, 189, 0.2)";
+    ctx.fillRect(x * size, y * size, size, size);
+    ctx.strokeStyle = "rgba(255, 246, 189, 0.72)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x * size + 3, y * size + 3, size - 6, size - 6);
+  }
+}
+
+function drawCollapseHints(ctx, cells, size) {
   for (const { x, y } of cells) {
     if (y < 0) {
       continue;

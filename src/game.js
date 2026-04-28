@@ -32,6 +32,7 @@ const swipeMoveEnabledInput = document.querySelector("#swipe-move-enabled");
 const swipeDropEnabledInput = document.querySelector("#swipe-drop-enabled");
 const bottomDropEnabledInput = document.querySelector("#bottom-drop-enabled");
 const collapsePreviewEnabledInput = document.querySelector("#collapse-preview-enabled");
+const matchPreviewEnabledInput = document.querySelector("#match-preview-enabled");
 
 const DROP_INTERVAL = 650;
 const SOFT_DROP_INTERVAL = 45;
@@ -405,21 +406,34 @@ function togglePause() {
 
 function draw() {
   const shouldShowPiece = state === "playing" || state === "paused";
-  renderGame(ctx, board, shouldShowPiece ? activePiece : null, effects, shouldShowPiece ? getCollapsePreviewCells() : []);
+  const preview = shouldShowPiece ? getPlacementPreview() : { collapseCells: [], matchCells: [] };
+  renderGame(ctx, board, shouldShowPiece ? activePiece : null, effects, preview.collapseCells, preview.matchCells);
   renderNext(nextCtx, nextPiece);
 }
 
-function getCollapsePreviewCells() {
-  if (!collapsePreviewEnabledInput.checked || !activePiece || state !== "playing") {
-    return [];
+function getPlacementPreview() {
+  if (!activePiece || state !== "playing") {
+    return { collapseCells: [], matchCells: [] };
   }
 
   const previewBoard = board.map((row) => [...row]);
   const previewPiece = getLandingPiece(activePiece, previewBoard);
   lockPiece(previewBoard, getCells(previewPiece));
-  resolveMatches(previewBoard);
 
-  return findCollapseCells(previewBoard, getCollapseSettings()).cells;
+  const matchCells = matchPreviewEnabledInput.checked ? getInitialMatchCells(previewBoard) : [];
+  resolveMatches(previewBoard);
+  const collapseCells = collapsePreviewEnabledInput.checked
+    ? findCollapseCells(previewBoard, getCollapseSettings()).cells
+    : [];
+
+  return { collapseCells, matchCells };
+}
+
+function getInitialMatchCells(targetBoard) {
+  return findGroups(targetBoard, 3).flat().map((cell) => ({
+    ...cell,
+    color: targetBoard[cell.y][cell.x],
+  }));
 }
 
 function getLandingPiece(piece, targetBoard) {
