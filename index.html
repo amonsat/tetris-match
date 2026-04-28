@@ -68,7 +68,21 @@
             <button id="help" class="help-button" type="button" aria-label="Показать мобильное управление" aria-pressed="false">?</button>
             <button id="pause" type="button">Пауза</button>
             <button id="restart" type="button">Рестарт</button>
+            <button id="settings" class="settings-button" type="button" aria-expanded="false">Настройки</button>
           </div>
+
+          <section id="settings-panel" class="settings-panel" hidden>
+            <h2>Обвал</h2>
+            <label><input type="checkbox" data-rule="massSupport" checked> Масса</label>
+            <label><input type="checkbox" data-rule="narrowSupport"> Узкая опора</label>
+            <label><input type="checkbox" data-rule="floatingIslands"> Острова</label>
+            <label><input type="checkbox" data-rule="overhangs"> Выступы</label>
+            <label><input type="checkbox" data-rule="centerMass"> Центр массы</label>
+            <label class="setting-number">
+              <span>Масса на опору</span>
+              <input id="mass-per-support" type="number" min="1" max="20" step="1" value="6">
+            </label>
+          </section>
 
           <dl class="keys">
             <div><dt>← →</dt><dd>движение</dd></div>

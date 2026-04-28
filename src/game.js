@@ -2,7 +2,7 @@ import { canPlace, createBoard, getTowerHeight, lockPiece, reachesTop } from "./
 import { applyGravity, findGroups, removeCells } from "./match.js";
 import { createBag, createPiece, getCells, rotatePiece } from "./pieces.js";
 import { renderGame, renderNext } from "./render.js";
-import { findWeakCollapse } from "./stability.js";
+import { findCollapseCells } from "./stability.js";
 
 const canvas = document.querySelector("#game");
 const nextCanvas = document.querySelector("#next");
@@ -22,6 +22,10 @@ const helpButton = document.querySelector("#help");
 const restartButton = document.querySelector("#restart");
 const restartOverlayButton = document.querySelector("#restart-overlay");
 const pauseButton = document.querySelector("#pause");
+const settingsButton = document.querySelector("#settings");
+const settingsPanel = document.querySelector("#settings-panel");
+const ruleInputs = document.querySelectorAll("[data-rule]");
+const massPerSupportInput = document.querySelector("#mass-per-support");
 
 const DROP_INTERVAL = 650;
 const SOFT_DROP_INTERVAL = 45;
@@ -90,6 +94,7 @@ restartButton.addEventListener("click", reset);
 restartOverlayButton.addEventListener("click", reset);
 pauseButton.addEventListener("click", togglePause);
 helpButton.addEventListener("click", toggleGestureHelp);
+settingsButton.addEventListener("click", toggleSettings);
 bindGestureControls();
 preventBrowserGestures();
 
@@ -346,7 +351,7 @@ async function settlePiece() {
   lastCombo = result.combo;
   updateUi();
 
-  const collapsePreview = findWeakCollapse(board);
+  const collapsePreview = findCollapseCells(board, getCollapseSettings());
   if (collapsePreview.cells.length > 0) {
     removeCells(board, collapsePreview.cells);
     await playEffect({ type: "collapse", cells: collapsePreview.cells }, COLLAPSE_ANIMATION_MS, currentRun);
@@ -457,6 +462,21 @@ function updateUi() {
   burnedEl.textContent = String(burnedTotal);
   comboEl.textContent = String(lastCombo);
   pauseButton.textContent = state === "paused" ? "Играть" : "Пауза";
+}
+
+function toggleSettings() {
+  const shouldShow = settingsPanel.hidden;
+  settingsPanel.hidden = !shouldShow;
+  settingsButton.setAttribute("aria-expanded", String(shouldShow));
+}
+
+function getCollapseSettings() {
+  const rules = {};
+  for (const input of ruleInputs) {
+    rules[input.dataset.rule] = input.checked;
+  }
+  rules.massPerSupport = Number(massPerSupportInput.value) || 6;
+  return rules;
 }
 
 function showOverlay(title, text) {
