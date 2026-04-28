@@ -234,6 +234,15 @@ function bindGestureControls() {
 
     const dx = event.clientX - gesture.startX;
     const dy = event.clientY - gesture.startY;
+
+    if (Math.abs(dx) >= GESTURE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.15) {
+      gesture.handled = true;
+      stopGestureRepeat();
+      clearTapTimer();
+      move(dx < 0 ? -1 : 1);
+      return;
+    }
+
     if (Math.abs(dy) < GESTURE_THRESHOLD || Math.abs(dy) < Math.abs(dx) * 1.15) {
       return;
     }
