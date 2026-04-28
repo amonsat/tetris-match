@@ -1,5 +1,5 @@
 import { canPlace, createBoard, getTowerHeight, lockPiece, reachesTop } from "./board.js";
-import { applyGravity, findGroups, removeCells } from "./match.js";
+import { applyGravity, findGroups, removeCells, resolveMatches } from "./match.js";
 import { createBag, createPiece, getCells, rotatePiece } from "./pieces.js";
 import { renderGame, renderNext } from "./render.js";
 import { findCollapseCells } from "./stability.js";
@@ -31,6 +31,7 @@ const tapMoveEnabledInput = document.querySelector("#tap-move-enabled");
 const swipeMoveEnabledInput = document.querySelector("#swipe-move-enabled");
 const swipeDropEnabledInput = document.querySelector("#swipe-drop-enabled");
 const bottomDropEnabledInput = document.querySelector("#bottom-drop-enabled");
+const collapsePreviewEnabledInput = document.querySelector("#collapse-preview-enabled");
 
 const DROP_INTERVAL = 650;
 const SOFT_DROP_INTERVAL = 45;
@@ -404,8 +405,33 @@ function togglePause() {
 
 function draw() {
   const shouldShowPiece = state === "playing" || state === "paused";
-  renderGame(ctx, board, shouldShowPiece ? activePiece : null, effects);
+  renderGame(ctx, board, shouldShowPiece ? activePiece : null, effects, shouldShowPiece ? getCollapsePreviewCells() : []);
   renderNext(nextCtx, nextPiece);
+}
+
+function getCollapsePreviewCells() {
+  if (!collapsePreviewEnabledInput.checked || !activePiece || state !== "playing") {
+    return [];
+  }
+
+  const previewBoard = board.map((row) => [...row]);
+  const previewPiece = getLandingPiece(activePiece, previewBoard);
+  lockPiece(previewBoard, getCells(previewPiece));
+  resolveMatches(previewBoard);
+
+  return findCollapseCells(previewBoard, getCollapseSettings()).cells;
+}
+
+function getLandingPiece(piece, targetBoard) {
+  let landed = piece;
+
+  while (true) {
+    const moved = { ...landed, y: landed.y + 1 };
+    if (!canPlace(targetBoard, getCells(moved))) {
+      return landed;
+    }
+    landed = moved;
+  }
 }
 
 async function resolveMatchesWithAnimation(currentRun) {

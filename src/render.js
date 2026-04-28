@@ -1,11 +1,10 @@
 import { HEIGHT, WIDTH } from "./board.js";
 import { getCells, PALETTE } from "./pieces.js";
-import { getWeakRows } from "./stability.js";
 
 const GRID = "#252b34";
 const EMPTY = "#10141b";
 
-export function renderGame(ctx, board, activePiece, effects = []) {
+export function renderGame(ctx, board, activePiece, effects = [], hazardCells = []) {
   const size = ctx.canvas.width / WIDTH;
   const hiddenCells = getHiddenCells(effects);
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -13,7 +12,7 @@ export function renderGame(ctx, board, activePiece, effects = []) {
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
   drawGrid(ctx, size, WIDTH, HEIGHT);
-  drawRowHints(ctx, board, size);
+  drawCellHints(ctx, hazardCells, size);
 
   for (let y = 0; y < HEIGHT; y += 1) {
     for (let x = 0; x < WIDTH; x += 1) {
@@ -95,12 +94,16 @@ function drawGrid(ctx, size, width, height) {
   }
 }
 
-function drawRowHints(ctx, board, size) {
-  const weakRows = getWeakRows(board);
-
-  for (const y of weakRows) {
-    ctx.fillStyle = "rgba(255, 112, 112, 0.15)";
-    ctx.fillRect(0, y * size, WIDTH * size, size);
+function drawCellHints(ctx, cells, size) {
+  for (const { x, y } of cells) {
+    if (y < 0) {
+      continue;
+    }
+    ctx.fillStyle = "rgba(255, 112, 112, 0.22)";
+    ctx.fillRect(x * size, y * size, size, size);
+    ctx.strokeStyle = "rgba(255, 112, 112, 0.7)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x * size + 2, y * size + 2, size - 4, size - 4);
   }
 }
 
