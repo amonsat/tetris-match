@@ -1,4 +1,4 @@
-import { canPlace, createBoard, getTowerHeight, lockPiece, reachesTop } from "./board.js";
+import { WIDTH, canPlace, createBoard, getTowerHeight, lockPiece, reachesTop } from "./board.js";
 import { applyGravity, findGroups, removeCells, resolveMatches } from "./match.js";
 import { createBag, createPiece, getCells, rotatePiece } from "./pieces.js";
 import { renderGame, renderNext } from "./render.js";
@@ -408,8 +408,22 @@ function togglePause() {
 function draw() {
   const shouldShowPiece = state === "playing" || state === "paused";
   const preview = shouldShowPiece ? getPlacementPreview() : { collapseCells: [], matchCells: [] };
-  renderGame(ctx, board, shouldShowPiece ? activePiece : null, effects, preview.collapseCells, preview.matchCells);
+  renderGame(ctx, board, shouldShowPiece ? activePiece : null, effects, preview.collapseCells, preview.matchCells, getHighlightedFullRows());
   renderNext(nextCtx, nextPiece);
+}
+
+function getHighlightedFullRows() {
+  if (fullRowModeInput.value === "none") {
+    return [];
+  }
+
+  const rows = [];
+  for (let y = 0; y < board.length; y += 1) {
+    if (board[y].filter(Boolean).length === WIDTH) {
+      rows.push(y);
+    }
+  }
+  return rows;
 }
 
 function getPlacementPreview() {

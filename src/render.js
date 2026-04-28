@@ -4,7 +4,7 @@ import { getCells, PALETTE } from "./pieces.js";
 const GRID = "#252b34";
 const EMPTY = "#10141b";
 
-export function renderGame(ctx, board, activePiece, effects = [], hazardCells = [], matchCells = []) {
+export function renderGame(ctx, board, activePiece, effects = [], hazardCells = [], matchCells = [], fullRows = []) {
   const size = ctx.canvas.width / WIDTH;
   const hiddenCells = getHiddenCells(effects);
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -12,6 +12,7 @@ export function renderGame(ctx, board, activePiece, effects = [], hazardCells = 
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
   drawGrid(ctx, size, WIDTH, HEIGHT);
+  drawFullRows(ctx, fullRows, size);
   drawMatchHints(ctx, matchCells, size);
   drawCollapseHints(ctx, hazardCells, size);
 
@@ -92,6 +93,16 @@ function drawGrid(ctx, size, width, height) {
     ctx.moveTo(0, py);
     ctx.lineTo(width * size, py);
     ctx.stroke();
+  }
+}
+
+function drawFullRows(ctx, rows, size) {
+  for (const y of rows) {
+    ctx.fillStyle = "rgba(113, 214, 201, 0.13)";
+    ctx.fillRect(0, y * size, WIDTH * size, size);
+    ctx.strokeStyle = "rgba(113, 214, 201, 0.7)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(2, y * size + 2, WIDTH * size - 4, size - 4);
   }
 }
 
