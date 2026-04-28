@@ -119,6 +119,101 @@ button:hover {
   display: none;
 }
 
+.gesture-help {
+  background: rgba(8, 11, 17, 0.72);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto auto;
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.gesture-help[hidden] {
+  display: none;
+}
+
+.gesture-zone {
+  align-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  min-width: 0;
+  padding: 10px 6px;
+  text-align: center;
+}
+
+.gesture-zone-left {
+  background: rgba(113, 214, 201, 0.13);
+  border-left: 0;
+}
+
+.gesture-zone-right {
+  background: rgba(155, 124, 242, 0.13);
+  border-right: 0;
+}
+
+.gesture-zone strong {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.gesture-zone span,
+.gesture-zone em,
+.gesture-drop,
+.gesture-bottom {
+  color: var(--text);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.15;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 0 6px;
+  text-align: center;
+}
+
+.gesture-zone em {
+  color: var(--accent);
+}
+
+.gesture-drop,
+.gesture-bottom {
+  align-items: center;
+  display: grid;
+  grid-column: 1 / -1;
+  justify-items: center;
+  min-height: 48px;
+}
+
+.gesture-drop {
+  background: rgba(255, 112, 112, 0.18);
+}
+
+.gesture-bottom {
+  background: rgba(255, 255, 255, 0.11);
+}
+
+@media (max-width: 360px) {
+  .gesture-zone strong {
+    font-size: 16px;
+  }
+
+  .gesture-zone span,
+  .gesture-zone em,
+  .gesture-drop,
+  .gesture-bottom {
+    font-size: 11px;
+  }
+
+  .gesture-drop,
+  .gesture-bottom {
+    min-height: 44px;
+  }
+}
+
 .overlay h1 {
   font-size: 34px;
   line-height: 1;
@@ -207,6 +302,12 @@ h2 {
   display: grid;
   gap: 10px;
   grid-template-columns: 1fr 1fr;
+}
+
+.help-button {
+  display: none;
+  min-width: 42px;
+  padding: 0;
 }
 
 .keys {
@@ -302,13 +403,19 @@ h2 {
   .controls {
     gap: 7px;
     grid-area: actions;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 36px 1fr 1fr;
   }
 
   .controls button {
     font-size: 12px;
     min-height: 32px;
     padding: 0 8px;
+  }
+
+  .help-button {
+    display: block;
+    min-width: 36px;
+    padding: 0;
   }
 
   .keys {

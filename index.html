@@ -12,6 +12,20 @@
         <div class="play-area">
           <div class="playfield-wrap">
             <canvas id="game" width="320" height="640" aria-label="Игровое поле"></canvas>
+            <div id="gesture-help" class="gesture-help" hidden aria-label="Схема мобильного управления">
+              <div class="gesture-zone gesture-zone-left">
+                <strong>Тап</strong>
+                <span>влево</span>
+                <em>↥ повернуть</em>
+              </div>
+              <div class="gesture-zone gesture-zone-right">
+                <strong>Тап</strong>
+                <span>вправо</span>
+                <em>↥ повернуть</em>
+              </div>
+              <div class="gesture-drop">↧ вниз = сброс</div>
+              <div class="gesture-bottom">низ = быстрее</div>
+            </div>
             <div id="overlay" class="overlay" hidden>
               <h1 id="overlay-title">Пауза</h1>
               <p id="overlay-text">Нажми P, чтобы продолжить</p>
@@ -51,6 +65,7 @@
           </section>
 
           <div class="controls">
+            <button id="help" class="help-button" type="button" aria-label="Показать мобильное управление" aria-pressed="false">?</button>
             <button id="pause" type="button">Пауза</button>
             <button id="restart" type="button">Рестарт</button>
           </div>

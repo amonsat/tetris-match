@@ -16,7 +16,9 @@ const comboEl = document.querySelector("#combo");
 const overlay = document.querySelector("#overlay");
 const overlayTitle = document.querySelector("#overlay-title");
 const overlayText = document.querySelector("#overlay-text");
+const gestureHelp = document.querySelector("#gesture-help");
 const playArea = document.querySelector(".play-area");
+const helpButton = document.querySelector("#help");
 const restartButton = document.querySelector("#restart");
 const restartOverlayButton = document.querySelector("#restart-overlay");
 const pauseButton = document.querySelector("#pause");
@@ -87,6 +89,7 @@ document.addEventListener("keyup", (event) => {
 restartButton.addEventListener("click", reset);
 restartOverlayButton.addEventListener("click", reset);
 pauseButton.addEventListener("click", togglePause);
+helpButton.addEventListener("click", toggleGestureHelp);
 bindGestureControls();
 preventBrowserGestures();
 
@@ -122,6 +125,7 @@ function reset() {
   runId += 1;
   updateUi();
   hideOverlay();
+  hideGestureHelp();
 }
 
 function takePiece() {
@@ -186,6 +190,11 @@ function bindGestureControls() {
       return;
     }
 
+    if (!gestureHelp.hidden) {
+      hideGestureHelp();
+      return;
+    }
+
     event.preventDefault();
     playArea.setPointerCapture(event.pointerId);
 
@@ -242,6 +251,17 @@ function bindGestureControls() {
   playArea.addEventListener("pointerup", endGesture);
   playArea.addEventListener("pointercancel", endGesture);
   playArea.addEventListener("lostpointercapture", endGesture);
+}
+
+function toggleGestureHelp() {
+  const shouldShow = gestureHelp.hidden;
+  gestureHelp.hidden = !shouldShow;
+  helpButton.setAttribute("aria-pressed", String(shouldShow));
+}
+
+function hideGestureHelp() {
+  gestureHelp.hidden = true;
+  helpButton.setAttribute("aria-pressed", "false");
 }
 
 function preventBrowserGestures() {
