@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tetris Match</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="app">
+      <section class="game-shell" aria-label="Tetris Match">
+        <div class="playfield-wrap">
+          <canvas id="game" width="320" height="640" aria-label="Игровое поле"></canvas>
+          <div id="overlay" class="overlay" hidden>
+            <h1 id="overlay-title">Пауза</h1>
+            <p id="overlay-text">Нажми P, чтобы продолжить</p>
+            <button id="restart-overlay" type="button">Новая игра</button>
+          </div>
+        </div>
+
+        <aside class="side-panel">
+          <header>
+            <p class="eyebrow">MVP</p>
+            <h1>Tetris Match</h1>
+          </header>
+
+          <div class="stats" aria-label="Статистика">
+            <div>
+              <span>Высота</span>
+              <strong id="height">0</strong>
+            </div>
+            <div>
+              <span>Сгорело</span>
+              <strong id="burned">0</strong>
+            </div>
+            <div>
+              <span>Комбо</span>
+              <strong id="combo">0</strong>
+            </div>
+          </div>
+
+          <section class="next-piece" aria-label="Следующая фигура">
+            <h2>Следующая</h2>
+            <canvas id="next" width="128" height="128"></canvas>
+          </section>
+
+          <div class="controls">
+            <button id="pause" type="button">Пауза</button>
+            <button id="restart" type="button">Рестарт</button>
+          </div>
+
+          <dl class="keys">
+            <div><dt>← →</dt><dd>движение</dd></div>
+            <div><dt>↓</dt><dd>быстрее</dd></div>
+            <div><dt>↑ / X</dt><dd>поворот</dd></div>
+            <div><dt>Z</dt><dd>назад</dd></div>
+            <div><dt>Space</dt><dd>сброс</dd></div>
+            <div><dt>P / R</dt><dd>пауза / рестарт</dd></div>
+          </dl>
+        </aside>
+      </section>
+    </main>
+
+    <script type="module" src="./src/game.js"></script>
+  </body>
+</html>
